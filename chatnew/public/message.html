@@ -1,0 +1,25 @@
+<div ng-switch on="info.type" data="{{info.type}}">
+    <!-- 欢迎消息 -->
+    <!--<div class="system-notification" ng-switch-when="welcome">-->
+        <!--<strong>系统消息:&nbsp;&nbsp;</strong><span>{{info.text}}</span>来啦~~-->
+    <!--</div>-->
+    <!-- 退出消息 -->
+    <!--<div class="system-notification" ng-switch-when="bye"><strong>系统:&nbsp;&nbsp;</strong>byebye,-->
+        <!--<span>{{info.text}}</span>-->
+    <!--</div>-->
+    <!-- 普通消息 -->
+    <div class="normal-message" data={{self}} ng-class="{others:self!==info.from,self:self===info.from}" ng-switch-when="normal">
+        <div class="name-wrapper"><span>{{info.from}}  </span><span>{{time |  date: 'HH:mm:ss' }}</span></div>
+        <div class="content-wrapper"><span class="content">{{info.text}}</span>
+            <!--<div class="content-wrapper"><span class="content" ng-bind-html="'<span>2222</span>'"></span>-->
+            <a ng-click="stopspeakmessage(info)">
+                <img class="avatar" ng-src="{{info.imgsrc}}"/>
+                <div class="jiinyan" >
+                    <span ng-click="stopspeak(message)">禁言</span>
+                    <span ng-click="startspeak(message)">解禁</span>
+                    <span ng-click="cancelsend(message)">撤销</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

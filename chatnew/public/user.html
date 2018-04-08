@@ -1,0 +1,7 @@
+<a class="user">
+    <!--<span class="avatar" style="margin:0;"></span>-->
+    <img ng-src="{{info.imgsrc?info.imgsrc:'/assets/images/carbg.jpg'}}" class="imgsrc">
+    <span class="nickname">{{info.username?info.username:"群聊"}}</span>
+    <span class="unread" ng-show="info.hasNewMessage&&!iscurrentreceiver">[未读]</span>
+    <span class="adminname" ng-show="info.role>=10">管理员</span>
+</a>

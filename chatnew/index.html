@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html ng-app="noApp">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>在线聊天</title>
+    <link rel="stylesheet" href="../css/layui.css" media="all">
+    <link id="layuicss-skinlayimcss" rel="stylesheet" href="/css/layim.css" media="all">
+    <link id="layuicss-skinlayercss" rel="stylesheet" href="/css/layer.css" media="all">
+    <style>
+        .layim-chat-username{font-size: 14px !important;}
+        .layui-layim-user{cursor: pointer}
+        .layim-chat-main::-webkit-scrollbar-thumb,.layim-tab-content::-webkit-scrollbar-thumb{
+            background-color: #F90;
+            background-image: -webkit-linear-gradient(90deg,
+            rgba(255, 255, 255, .2) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .2) 50%,
+            rgba(255, 255, 255, .2) 75%,
+            transparent 75%,
+            transparent);
+            border-radius: 50px;
+        }
+    </style>
+</head>
+<body ng-controller="MainCtrl" class="carbg">
+<div ng-if="!search.hasaccount" style="width:200px;margin:20px auto;">
+    <input placeholder="登录账号(随便填)" ng-model="search.account" style="margin-top:20px;width:200px;height:30px;"/><br>
+    <button ng-click="loginbtn();" style="margin-top:10px;">确定登录</button>
+</div>
+
+<div class="buttonchat" ng-if="search.hasaccount">
+    <a ng-click="refreshbtn()">更新在线成员</a>
+    <a ng-click="loginbtnout()">退出</a>
+</div>
+</body>
+<script type='text/javascript' src="./js/angular.js"></script>
+<script type='text/javascript' src="./js/socket.io.js"></script>
+<script type='text/javascript' src="./js/layui.js"></script>
+<script type="text/javascript" src="./js/main.js"></script>
+</html>

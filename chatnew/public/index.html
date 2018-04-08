@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>在线聊天室</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/style/app.css"/>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//cdn.bootcss.com/angular.js/1.4.3/angular.min.js"></script>
+    <script src="./assets/js/app.js"></script>
+    <style>
+        .form-inline .form-group{display: block;margin-bottom: 15px;}
+        .header{width:100%;height:50px;    position: relative;z-index: 1000;}
+        .header button{width:100px;height:30px;float: right;margin:10px;}
+        .abscenter{position: fixed;top:0;left:0;background: rgba(0,0,0,.5);width:100%;height:100%;z-index: 100;}
+        .help-block{color:#e61313;}
+        .titlelogin{line-height: 40px;font-size: 25px;font-weight: bold;}
+        .panel,.panel-footer{background:none;}
+        .panel-body {padding: 10px 0px;}
+        .adminchat{    width: 100%;
+            background: #dff0d8;
+            height: 40px;}
+        .p-title{font-size:14px;    text-align: center;
+            width: 50%;float: left;cursor: pointer;
+            line-height: 40px;
+            border-right: 1px solid #ccc;
+            height: 40px;box-sizing: border-box;
+            display: inline-block;
+        }
+        .p-title.active{background: #f5faff;}
+        .noborder{border:none;}
+        .adminname{ height: 18px;
+            text-align: center;
+            border-radius: 9px;
+            font-size: 12px;
+            background-color: #FF5722;
+            color: #fff;
+            float: right;
+            padding: 0 4px;
+            line-height: 19px;
+            margin-top: 5px;
+            display: block;}
+        .headerimg{    position: relative;
+            display: block;
+            text-align: left;
+            height: 30px;
+            line-height: 30px;
+            margin-bottom: 10px;}
+        .headerimg .headercontent{    position: absolute;
+            top: -90px;
+            left: 64px;cursor: pointer;
+            width: 400px;
+            height: 300px;
+            background: url(/assets/images/header.jpg) no-repeat;
+            display: block;
+            background-size: 100% auto;
+            z-index: 1000;}
+        .face{width: 30px;height: 25px;float:left;margin-left: 15px;cursor:pointer;color: #fff;  border: 1px solid #ccc;  font-size: 12px;  line-height: 25px;}
+        .face nav{width:300px;height:160px;    position: absolute;top: -156px;  left: -115px;display: none;}
+        .face nav a{float: left;cursor: pointer}
+        .face:hover nav{display: block}
+        .headerimg .headercontent nav{width:100%;}
+        .headerimg .headercontent nav a{width:33.3333px;height:34px;float: left;    }
+        .headerimg .headercontent nav a:hover{border: 2px solid #c36d6d;}
+        .controlarea{
+            width: 100%;
+            height: 30px;
+            position: absolute;
+            top: -30px;
+            left: 0;
+        }
+        .controlarea span{float: left;}
+        .jiinyan{width: 40px;position: absolute;top: -2px;left: 51px;background: #fff;
+            text-align: center;  border-radius: 5px;  color: #333;  font-size: 13px;display: none;}
+        .jiinyan span{width:100%;display: block;}
+    </style>
+</head>
+<body ng-app="chatRoom" ng-controller="chatCtrl">
+<div class="header">
+    <button ng-click="create.registpage = true;create.loginpage = false;create.showlogin = true" ng-if="islogin">注册</button>
+    <button ng-click="create.registpage = false;create.loginpage = true;create.showlogin = true" ng-if="islogin">登录</button>
+    <a ng-if="islogin" style="float: right;line-height: 30px;margin-top: 10px;text-decoration: none;">游客你好！</a>
+    <button ng-click="logout()" ng-if="!islogin">退出</button>
+    <a ng-if="!islogin" style="float: right;line-height: 30px;margin-top: 10px;">欢迎您，{{user.role>=10?'管理员 ':''}}{{user.username}}</a>
+
+</div>
+<div class="abscenter" ng-show="create.showlogin">
+    <!--登录-->
+    <div class="userform-wrapper"  ng-show="create.loginpage">
+        <form class="form-inline login" novalidate name="userform1">
+            <a class="closebtn" ng-click="create.showlogin = false;">x</a>
+            <p class="titlelogin">用户登录</p>
+            <div class="form-group">
+                <label for="username" class="sr-only"></label>
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-user"></span></div>
+                    <input type="text" class="form-control" id="username" placeholder="请输入会员账号" ng-model="create1.username" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="pwd" class="sr-only"></label>
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-user"></span></div>
+                    <input type="password" class="form-control" id="password" placeholder="请输入您的密码" ng-model="create1.password" required/>
+                </div>
+            </div>
+            <button ng-click="login()" class="btn btn-primary" ng-disabled="userform1.$invalid">登录</button>
+            <button ng-click="create.registpage = true;create.loginpage =  userExisted = false;reg = {}" class="btn btn-primary" style=" margin-left: 10px;">去注册</button>
+            <p ng-show="userExisted" class="help-block">{{alertinfo}}</p>
+
+        </form>
+    </div>
+    <!--注册-->
+    <div class="userform-wrapper"  ng-show="create.registpage">
+        <form class="form-inline login" novalidate name="userform">
+            <a class="closebtn" ng-click="create.showlogin = false;">x</a>
+            <p class="titlelogin">注册</p>
+            <div class="form-group" ng-init="create.showheader = false;">
+                <span class="headerimg" ng-click="create.showheader = true;">头像选择
+                    <img ng-src="{{imgsrc}}" style="width:30px;height:30px;" />
+                    <div class="headercontent" ng-show="create.showheader">
+                        <nav>
+                            <a ng-repeat="item in headerimgsel" ng-click="selimg(item,$index);"></a>
+                        </nav>
+                    </div>
+                </span>
+                <label for="username" class="sr-only"></label>
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-user"></span></div>
+                    <input type="text" class="form-control" placeholder="请输入会员账号,3至20个有效字符" ng-model="reg.username" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="pwd" class="sr-only"></label>
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-user"></span></div>
+                    <input type="password" class="form-control"  placeholder="请输入您的密码" ng-model="reg.password" required/>
+                </div>
+            </div>
+            <button ng-click="create.registpage = userExisted = false;create.loginpage = true;" class="btn btn-primary">去登陆</button>
+            <button ng-click="regist()" class="btn btn-primary" ng-disabled="userform.$invalid" style=" margin-left: 10px;">注册</button>
+            <p ng-show="userregExisted" class="help-block">{{alertinfo}}</p>
+        </form>
+    </div>
+</div>
+<!-- chat room -->
+
+<div class="chat-room-wrapper">
+    <div class="online panel panel-success">
+        <div class="adminchat" ng-init="showchat = true;">
+            <span class="p-title" ng-class="{active:showchat}" ng-click="showchat = true">在线<span class="user-number">{{users.length}}</span></span>
+            <span class="p-title noborder" ng-class="{active:!showchat}" ng-click="showchat = false">私聊管理员</span>
+        </div>
+        <div class="user-wrapper panel-body">
+            <user iscurrentreceiver="receiver===item.username" info="item" ng-if="showchat" ng-click="setReceiver(item.username,$index);" role="{{item}}" ng-hide="user.username == item.username || item.role>10" ng-class="{'current':create.currentindex==$index}" ng-repeat="item in users"></user>
+            <user iscurrentreceiver="receiver===item.username" info="item" ng-if="!showchat" ng-click="setReceiver(item.username,$index);" role="{{item}}" ng-show="user.username != item.username && item.role>=10" ng-class="{'current':create.currentindex==$index}" ng-repeat="item in users"></user>
+        </div>
+    </div>
+    <div class="chat-room panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{receiver?receiver:"群聊"}}</h3>
+        </div>
+        <div class="message-wrapper panel-body">
+            <div ng-repeat="message in ChatHistory" ng-if="receiver == '群聊' || receiver == ''">
+                <div class="normal-message"  ng-class="{others:user.username != message.from,self:user.username == message.from}">
+                    <div class="name-wrapper"><span>{{message.from}}  </span><span>{{message.time |  date: 'HH:mm:ss' }}</span></div>
+                    <div class="content-wrapper"><span class="content">{{message.text}}</span>
+                        <a ng-click="stopspeak(message)">
+                            <img class="avatar" ng-src="{{message.imgsrc}}"/>
+                            <div class="jiinyan">
+                                <span ng-click="stopspeak(message)">禁言</span>
+                                <span ng-click="startspeak(message)">解禁</span>
+                                <span ng-click="cancelsend(message)">撤销</span>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            <message self="username" scrolltothis="scrollToBottom()" info="message" ng-repeat="message in messages"></message>
+        </div>
+        <div class="panel-footer">
+            <div class="controlarea">
+                <span class="face">表情
+                    <nav>
+                       <a ng-repeat="item in facedata" ng-click="postMessage($index,true)"><img ng-src="/assets/images/face/{{$index}}.gif"></a>
+                    </nav>
+                </span>
+                <!--<span class="face fileimg">图片</span>-->
+            </div>
+            <form class="post-form form-inline" novalidate name="postform" ng-submit="postMessage()">
+                <div contenteditable="true"  class="form-control h80" id="SendMessageContent"></div>
+                <button type="submit" class="btn btn-success frbtn">发送</button>
+            </form>
+        </div>
+        <!--<div class="panel-footer">-->
+            <!--<div class="controlarea">-->
+                <!--<span class="face">表情-->
+                    <!--<nav>-->
+                       <!--<a ng-repeat="item in facedata" ng-click="postMessage($index,true)"><img ng-src="/assets/images/face/{{$index}}.gif"></a>-->
+                    <!--</nav>-->
+                <!--</span>-->
+                <!--&lt;!&ndash;<span class="face fileimg">图片</span>&ndash;&gt;-->
+            <!--</div>-->
+            <!--<form class="post-form form-inline" novalidate name="postform" ng-submit="postMessage()">-->
+                <!--<textarea type="text" class="form-control" ng-model="words" placeholder="说点什么呗" required></textarea>-->
+                <!--<button type="submit" class="btn btn-success frbtn" ng-disabled="postform.$invalid">发送</button>-->
+            <!--</form>-->
+        <!--</div>-->
+    </div>
+</div>
+<!-- end of chat room -->
+</body>
+</html>
