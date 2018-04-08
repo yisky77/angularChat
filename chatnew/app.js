@@ -23,6 +23,7 @@ app.get('/', function (req, res) {
     res.sendfile('public/index.html');
 });
 
+// 链接mongodb（默认是不打开所以注释掉了，ps:需安装mongodb）
 // var db = mongoose.connect("mongodb://127.0.0.1:27017/chat");
 // db.connection.on("error", function (error) {
 //     console.log("数据库连接失败：" + error);
