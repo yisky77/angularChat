@@ -1,6 +1,4 @@
-# angularChat
-使用方法
-git clone https://github.com/Jokcy/vue-todo-tech.git
+使用方法：https://github.com/yisky77/angularChat.git
 
 进入项目目录，运行 npm install
 
