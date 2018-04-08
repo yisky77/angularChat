@@ -117,7 +117,7 @@ app.controller("chatCtrl",['$scope','socket','$http','userService','$timeout',fu
         $scope.create.loginpage = $scope.create.registpage = $scope.create.showlogin =  false;
         // console.log($scope.create1.username);                
         $scope.user.username = $scope.create1.username;
-        var num =parseInt(10*Math.random())
+        var num =parseInt(100*Math.random())
         $scope.user.imgsrc = '/assets/images/'+num+'.png';
         $scope.islogin = false;
     }
