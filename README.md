@@ -1,6 +1,6 @@
 使用方法：
 
-本地执行 git clone https://github.com/yisky77/angularChat.git
+下载 git clone https://github.com/yisky77/angularChat.git
 
 进入项目目录，运行 npm install
 
